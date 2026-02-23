@@ -4,10 +4,11 @@ from servicios.inventario import Inventario
 
 
 def menu():
+    # Al instanciar, automáticamente cargará lo que esté en inventario.txt
     sistema = Inventario()
 
     while True:
-        print("\n- SISTEMA DE GESTIÓN DE INVENTARIOS -")
+        print("\n= GESTIÓN DE INVENTARIO PERSISTENTE =")
         print("1. Añadir producto")
         print("2. Eliminar producto")
         print("3. Actualizar producto")
@@ -17,45 +18,50 @@ def menu():
 
         opcion = input("Seleccione una opción: ")
 
-        if opcion == "1":
-            try:
-                id_p = input("ID unico: ")
+        try:
+            if opcion == "1":
+                id_p = input("ID único: ").strip()
+                if not id_p: raise ValueError("El ID no puede estar vacio.")
                 nom = input("Nombre: ")
                 cant = int(input("Cantidad: "))
                 pre = float(input("Precio: "))
                 nuevo = Producto(id_p, nom, cant, pre)
                 sistema.añadir_producto(nuevo)
-            except ValueError:
-                print("Error: Cantidad y Precio deben ser numeros.")
 
-        elif opcion == "2":
-            id_p = input("ID del producto a eliminar: ")
-            sistema.eliminar_producto(id_p)
+            elif opcion == "2":
+                id_p = input("ID del producto a eliminar: ")
+                sistema.eliminar_producto(id_p)
 
-        elif opcion == "3":
-            id_p = input("ID del producto a actualizar: ")
-            try:
-                cant = int(input("Nueva cantidad (dejar vacío para no cambiar): ") or -1)
-                pre = float(input("Nuevo precio (dejar vacío para no cambiar): ") or -1)
-                sistema.actualizar_producto(id_p,
-                                            nueva_cantidad=cant if cant != -1 else None,
-                                            nuevo_precio=pre if pre != -1 else None)
-            except ValueError:
-                print("Error en el formato de los datos.")
+            elif opcion == "3":
+                id_p = input("ID del producto a actualizar: ")
+                c_input = input("Nueva cantidad (Enter para omitir): ")
+                p_input = input("Nuevo precio (Enter para omitir): ")
 
-        elif opcion == "4":
-            nom = input("Ingrese el nombre (o parte del nombre) a buscar: ")
-            encontrados = sistema.buscar_por_nombre(nom)
-            for e in encontrados: print(e)
+                cant = int(c_input) if c_input else None
+                pre = float(p_input) if p_input else None
+                sistema.actualizar_producto(id_p, cant, pre)
 
-        elif opcion == "5":
-            sistema.mostrar_inventario()
+            elif opcion == "4":
+                nom = input("Nombre a buscar: ")
+                encontrados = sistema.buscar_por_nombre(nom)
+                if encontrados:
+                    for e in encontrados: print(e)
+                else:
+                    print("No se encontraron coincidencias.")
 
-        elif opcion == "6":
-            print("Saliendo del sistema...")
-            break
-        else:
-            print("Opcion no valida.")
+            elif opcion == "5":
+                sistema.mostrar_inventario()
+
+            elif opcion == "6":
+                print("Hasta luego!")
+                break
+            else:
+                print("Opción no válida.")
+
+        except ValueError as e:
+            print(f"Error de entrada: {e}. Asegúrese de usar números donde corresponda.")
+        except Exception as e:
+            print(f"Ocurrió un error inesperado: {e}")
 
 
 if __name__ == "__main__":
